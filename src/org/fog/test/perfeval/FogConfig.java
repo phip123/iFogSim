@@ -10,6 +10,7 @@ public class FogConfig {
     private int raterPerMips;
     private double busyPower;
     private double idlePower;
+    public static final double CLUSTER_DISTANCE = 2.00;
 
     public FogConfig(String id, int mips, int ram, int upBw, int downBw, int level, int raterPerMips, double busyPower, double idlePower) {
         this.id = id;

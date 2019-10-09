@@ -2,6 +2,7 @@ package org.fog.utils;
 
 public class Config {
 
+	public static final double CLUSTER_DISTANCE = 2.00;
 	public static final double RESOURCE_MGMT_INTERVAL = 100;
 	public static int MAX_SIMULATION_TIME = 10000;
 	public static int RESOURCE_MANAGE_INTERVAL = 100;
