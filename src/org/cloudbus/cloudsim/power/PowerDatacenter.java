@@ -21,18 +21,19 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
+import org.cloudbus.cloudsim.power.models.Utilization;
 
 /**
  * PowerDatacenter is a class that enables simulation of power-aware data centers.
- * 
+ *
  * If you are using any algorithms, policies or workload included in the power package please cite
  * the following paper:
- * 
+ *
  * Anton Beloglazov, and Rajkumar Buyya, "Optimal Online Deterministic Algorithms and Adaptive
  * Heuristics for Energy and Performance Efficient Dynamic Consolidation of Virtual Machines in
  * Cloud Data Centers", Concurrency and Computation: Practice and Experience (CCPE), Volume 24,
  * Issue 13, Pages: 1397-1420, John Wiley & Sons, Ltd, New York, USA, 2012
- * 
+ *
  * @author Anton Beloglazov
  * @since CloudSim Toolkit 2.0
  */
@@ -52,11 +53,10 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Instantiates a new datacenter.
-	 * 
+	 *
 	 * @param name the name
 	 * @param characteristics the res config
 	 * @param schedulingInterval the scheduling interval
-	 * @param utilizationBound the utilization bound
 	 * @param vmAllocationPolicy the vm provisioner
 	 * @param storageList the storage list
 	 * @throws Exception the exception
@@ -79,7 +79,7 @@ public class PowerDatacenter extends Datacenter {
 	 * Updates processing of each cloudlet running in this PowerDatacenter. It is necessary because
 	 * Hosts and VirtualMachines are simple objects, not entities. So, they don't receive events and
 	 * updating cloudlets inside them must be called from the outside.
-	 * 
+	 *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -90,12 +90,12 @@ public class PowerDatacenter extends Datacenter {
 			schedule(getId(), getSchedulingInterval(), CloudSimTags.VM_DATACENTER_EVENT);
 			return;
 		}
-		
+
 		double currentTime = CloudSim.clock();
 
 		// if some time passed since last processing
 		if (currentTime > getLastProcessTime()) {
-			
+
 			double minTime = updateCloudetProcessingWithoutSchedulingFutureEventsForce();
 			if (!isDisableMigrations()) {
 				List<Map<String, Object>> migrationMap = getVmAllocationPolicy().optimizeAllocation(
@@ -150,7 +150,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Update cloudet processing without scheduling future events.
-	 * 
+	 *
 	 * @return the double
 	 */
 	protected double updateCloudetProcessingWithoutSchedulingFutureEvents() {
@@ -162,7 +162,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Update cloudet processing without scheduling future events.
-	 * 
+	 *
 	 * @return the double
 	 */
 	protected double updateCloudetProcessingWithoutSchedulingFutureEventsForce() {
@@ -196,22 +196,22 @@ public class PowerDatacenter extends Datacenter {
 					currentTime);
 
 			for (PowerHost host : this.<PowerHost> getHostList()) {
-				double previousUtilizationOfCpu = host.getPreviousUtilizationOfCpu();
-				double utilizationOfCpu = host.getUtilizationOfCpu();
+				Utilization previous = host.getPreviousUtilization();
+				Utilization current = host.getUtilization();
 				double timeFrameHostEnergy = host.getEnergyLinearInterpolation(
-						previousUtilizationOfCpu,
-						utilizationOfCpu,
+						previous,
+						current,
 						timeDiff);
 				timeFrameDatacenterEnergy += timeFrameHostEnergy;
 
 				Log.printLine();
 				Log.formatLine(
-						"%.2f: [Host #%d] utilization at %.2f was %.2f%%, now is %.2f%%",
+						"%.2f: [Host #%d] utilization at %.2f was %s, now is %s",
 						currentTime,
 						host.getId(),
 						getLastProcessTime(),
-						previousUtilizationOfCpu * 100,
-						utilizationOfCpu * 100);
+						previous,
+						current);
 				Log.formatLine(
 						"%.2f: [Host #%d] energy is %.2f W*sec",
 						currentTime,
@@ -230,7 +230,7 @@ public class PowerDatacenter extends Datacenter {
 		checkCloudletCompletion();
 
 		/** Remove completed VMs **/
-		
+
 		for (PowerHost host : this.<PowerHost> getHostList()) {
 			for (Vm vm : host.getCompletedVms()) {
 				getVmAllocationPolicy().deallocateHostForVm(vm);
@@ -238,7 +238,7 @@ public class PowerDatacenter extends Datacenter {
 				Log.printLine("VM #" + vm.getId() + " has been deallocated from host #" + host.getId());
 			}
 		}
-		
+
 		Log.printLine();
 
 		setLastProcessTime(currentTime);
@@ -272,7 +272,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Gets the power.
-	 * 
+	 *
 	 * @return the power
 	 */
 	public double getPower() {
@@ -281,7 +281,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Sets the power.
-	 * 
+	 *
 	 * @param power the new power
 	 */
 	protected void setPower(double power) {
@@ -290,7 +290,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Checks if PowerDatacenter is in migration.
-	 * 
+	 *
 	 * @return true, if PowerDatacenter is in migration
 	 */
 	protected boolean isInMigration() {
@@ -306,7 +306,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Checks if is disable migrations.
-	 * 
+	 *
 	 * @return true, if is disable migrations
 	 */
 	public boolean isDisableMigrations() {
@@ -315,7 +315,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Sets the disable migrations.
-	 * 
+	 *
 	 * @param disableMigrations the new disable migrations
 	 */
 	public void setDisableMigrations(boolean disableMigrations) {
@@ -324,7 +324,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Checks if is cloudlet submited.
-	 * 
+	 *
 	 * @return true, if is cloudlet submited
 	 */
 	protected double getCloudletSubmitted() {
@@ -333,7 +333,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Sets the cloudlet submited.
-	 * 
+	 *
 	 * @param cloudletSubmitted the new cloudlet submited
 	 */
 	protected void setCloudletSubmitted(double cloudletSubmitted) {
@@ -342,7 +342,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Gets the migration count.
-	 * 
+	 *
 	 * @return the migration count
 	 */
 	public int getMigrationCount() {
@@ -351,7 +351,7 @@ public class PowerDatacenter extends Datacenter {
 
 	/**
 	 * Sets the migration count.
-	 * 
+	 *
 	 * @param migrationCount the new migration count
 	 */
 	protected void setMigrationCount(int migrationCount) {

@@ -10,17 +10,17 @@ package org.cloudbus.cloudsim.power.models;
 
 /**
  * The Class PowerModelCubic.
- * 
+ *
  * If you are using any algorithms, policies or workload included in the power package, please cite
  * the following paper:
- * 
+ *
  * Anton Beloglazov, and Rajkumar Buyya, "Optimal Online Deterministic Algorithms and Adaptive
  * Heuristics for Energy and Performance Efficient Dynamic Consolidation of Virtual Machines in
  * Cloud Data Centers", Concurrency and Computation: Practice and Experience (CCPE), Volume 24,
  * Issue 13, Pages: 1397-1420, John Wiley & Sons, Ltd, New York, USA, 2012
- * 
+ *
  * @author Anton Beloglazov
- * 
+ *
  * @author Anton Beloglazov
  * @since CloudSim Toolkit 2.0
  */
@@ -37,7 +37,7 @@ public class PowerModelCubic implements PowerModel {
 
 	/**
 	 * Instantiates a new power model cubic.
-	 * 
+	 *
 	 * @param maxPower the max power
 	 * @param staticPowerPercent the static power percent
 	 */
@@ -52,19 +52,20 @@ public class PowerModelCubic implements PowerModel {
 	 * @see gridsim.virtualization.power.PowerModel#getPower(double)
 	 */
 	@Override
-	public double getPower(double utilization) throws IllegalArgumentException {
-		if (utilization < 0 || utilization > 1) {
+	public double getPower(Utilization utilization) throws IllegalArgumentException {
+		double cpuUtil = utilization.getCpuUsage();
+		if (cpuUtil < 0 || cpuUtil > 1) {
 			throw new IllegalArgumentException("Utilization value must be between 0 and 1");
 		}
-		if (utilization == 0) {
+		if (cpuUtil == 0) {
 			return 0;
 		}
-		return getStaticPower() + getConstant() * Math.pow(utilization * 100, 3);
+		return getStaticPower() + getConstant() * Math.pow(cpuUtil * 100, 3);
 	}
 
 	/**
 	 * Gets the max power.
-	 * 
+	 *
 	 * @return the max power
 	 */
 	protected double getMaxPower() {
@@ -73,7 +74,7 @@ public class PowerModelCubic implements PowerModel {
 
 	/**
 	 * Sets the max power.
-	 * 
+	 *
 	 * @param maxPower the new max power
 	 */
 	protected void setMaxPower(double maxPower) {
@@ -82,7 +83,7 @@ public class PowerModelCubic implements PowerModel {
 
 	/**
 	 * Gets the constant.
-	 * 
+	 *
 	 * @return the constant
 	 */
 	protected double getConstant() {
@@ -91,7 +92,7 @@ public class PowerModelCubic implements PowerModel {
 
 	/**
 	 * Sets the constant.
-	 * 
+	 *
 	 * @param constant the new constant
 	 */
 	protected void setConstant(double constant) {
@@ -100,7 +101,7 @@ public class PowerModelCubic implements PowerModel {
 
 	/**
 	 * Gets the static power.
-	 * 
+	 *
 	 * @return the static power
 	 */
 	protected double getStaticPower() {
@@ -109,7 +110,7 @@ public class PowerModelCubic implements PowerModel {
 
 	/**
 	 * Sets the static power.
-	 * 
+	 *
 	 * @param staticPower the new static power
 	 */
 	protected void setStaticPower(double staticPower) {
