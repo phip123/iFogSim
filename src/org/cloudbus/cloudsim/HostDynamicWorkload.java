@@ -323,7 +323,7 @@ public class HostDynamicWorkload extends Host {
 
 	public Utilization getUtilization() {
 		return Utilization.anUtilizationBuilder()
-				.cpuUsage(getDiskUsage())
+				.cpuUsage(getUtilizationOfCpu())
 				.diskUsage(getDiskUsage())
 				.build();
 	}
