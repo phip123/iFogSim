@@ -4,6 +4,7 @@ public class Utilization {
 
     private double cpuUsage;
     private double diskUsage;
+    private double bandwithUsage;
 
     public double getCpuUsage() {
         return cpuUsage;
@@ -21,14 +22,31 @@ public class Utilization {
         this.diskUsage = diskUsage;
     }
 
+    public double getBandwithUsage() {
+        return bandwithUsage;
+    }
+
+    public void setBandwithUsage(double bandwithUsage) {
+        this.bandwithUsage = bandwithUsage;
+    }
+
+
+
+    public static UtilizationBuilder anUtilizationBuilder() {
+        return new UtilizationBuilder();
+    }
 
     public static final class UtilizationBuilder {
         private double cpuUsage;
         private double diskUsage;
+        private double bandwithUsage;
 
         private UtilizationBuilder() {
         }
 
+        public static UtilizationBuilder anUtilization() {
+            return new UtilizationBuilder();
+        }
 
         public UtilizationBuilder cpuUsage(double cpuUsage) {
             this.cpuUsage = cpuUsage;
@@ -40,23 +58,17 @@ public class Utilization {
             return this;
         }
 
+        public UtilizationBuilder bandwithUsage(double bandwithUsage) {
+            this.bandwithUsage = bandwithUsage;
+            return this;
+        }
+
         public Utilization build() {
             Utilization utilization = new Utilization();
             utilization.setCpuUsage(cpuUsage);
             utilization.setDiskUsage(diskUsage);
+            utilization.setBandwithUsage(bandwithUsage);
             return utilization;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Utilization{" +
-                "cpuUsage=" + cpuUsage +
-                ", diskUsage=" + diskUsage +
-                '}';
-    }
-
-    public static UtilizationBuilder anUtilizationBuilder() {
-        return new UtilizationBuilder();
     }
 }

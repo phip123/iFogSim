@@ -70,7 +70,7 @@ public class PowerHost extends HostDynamicWorkload {
         Utilization utilization = new Utilization();
         utilization.setCpuUsage(getUtilizationOfCpu());
         utilization.setDiskUsage(getDiskUsage());
-
+        utilization.setBandwithUsage(getBw());
         try {
             return powerModel.getPower(utilization);
         } catch (Exception e) {

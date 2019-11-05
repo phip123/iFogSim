@@ -404,6 +404,10 @@ public class Host {
 		return getBwProvisioner().getBw();
 	}
 
+	public long getUsedBw() {
+		return getBwProvisioner().getUsedBw();
+	}
+
 	/**
 	 * Gets the machine memory.
 	 * 

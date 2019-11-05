@@ -540,9 +540,11 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 		try {
 			double cpuUtil = getMaxCpuUtilizationAfterAllocation(host, vm);
 			double diskUtil = getMaxDiskUtilizationAfterAllocation(host, vm);
+			double bwUtil = getMaxBwUtilizationAfterAllocation(host, vm);
 			Utilization util = Utilization.anUtilizationBuilder()
 					.diskUsage(diskUtil)
 					.cpuUsage(cpuUtil)
+					.bandwithUsage(bwUtil)
 					.build();
 			power = host.getPowerModel().getPower(util);
 		} catch (Exception e) {
@@ -550,6 +552,11 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 			System.exit(0);
 		}
 		return power;
+	}
+
+	protected double getMaxBwUtilizationAfterAllocation(PowerHost host, Vm vm) {
+		// TODO implement
+		return 0;
 	}
 
 	protected double getMaxDiskUtilizationAfterAllocation(PowerHost host, Vm vm) {

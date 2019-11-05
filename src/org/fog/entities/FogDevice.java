@@ -543,9 +543,10 @@ public class FogDevice extends PowerDatacenter {
 
         double timeNow = CloudSim.clock();
         double currentEnergyConsumption = getEnergyConsumption();
-        Utilization utilization = Utilization.anUtilizationBuilder().
-                cpuUsage(lastCpuUtilization)
+        Utilization utilization = Utilization.anUtilizationBuilder()
+                .cpuUsage(lastCpuUtilization)
                 .diskUsage(lastDiskUsage())
+                .bandwithUsage(lastBandwithUsage())
                 .build();
         double newEnergyConsumption = currentEnergyConsumption + (timeNow - lastUtilizationUpdateTime) * getHost().getPowerModel().getPower(utilization);
         setEnergyConsumption(newEnergyConsumption);
@@ -557,6 +558,11 @@ public class FogDevice extends PowerDatacenter {
         lastCpuUtilization = Math.min(1, totalMipsAllocated / getHost().getTotalMips());
         setLastDiskUtilization();
         lastUtilizationUpdateTime = timeNow;
+    }
+
+    private double lastBandwithUsage() {
+        // TODO implement
+        return 0;
     }
 
     private void setLastDiskUtilization() {

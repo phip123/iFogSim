@@ -85,7 +85,7 @@ public class HostDynamicWorkload extends Host {
         for (Vm vm : getVmList()) {
             double totalRequestedMips = vm.getCurrentRequestedTotalMips();
             double totalAllocatedMips = getVmScheduler().getTotalAllocatedMipsForVm(vm);
-
+            vm.getCurrentRequestedBw()
             if (!Log.isDisabled()) {
                 Log.formatLine(
                         "%.2f: [Host #" + getId() + "] Total allocated MIPS for VM #" + vm.getId()
@@ -233,7 +233,13 @@ public class HostDynamicWorkload extends Host {
         Utilization utilization = new Utilization();
         utilization.setDiskUsage(previousDisk);
         utilization.setCpuUsage(previousCPU);
+        utilization.setBandwithUsage(getPreviousUtilizationOfBw());
         return utilization;
+    }
+
+    private double getPreviousUtilizationOfBw() {
+        // TODO implement
+        return 0;
     }
 
     private double getPreviousUtilizationOfDisk() {
@@ -325,6 +331,7 @@ public class HostDynamicWorkload extends Host {
 		return Utilization.anUtilizationBuilder()
 				.cpuUsage(getUtilizationOfCpu())
 				.diskUsage(getDiskUsage())
+                .bandwithUsage(getUtilizationOfBw())
 				.build();
 	}
 
