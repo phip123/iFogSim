@@ -8,6 +8,8 @@
 
 package org.cloudbus.cloudsim.power.models;
 
+import org.cloudbus.cloudsim.power.Resources;
+
 /**
  * The Class PowerModelSquare.
  *
@@ -50,7 +52,7 @@ public class PowerModelSquare implements PowerModel {
 	 * @see gridsim.virtualization.power.PowerModel#getPower(double)
 	 */
 	@Override
-	public double getPower(Utilization utilization) throws IllegalArgumentException {
+	public double getPower(Resources utilization) throws IllegalArgumentException {
 		double cpuUtil = utilization.getCpuUsage();
 		if (cpuUtil < 0 || cpuUtil > 1) {
 			throw new IllegalArgumentException("Utilization value must be between 0 and 1");

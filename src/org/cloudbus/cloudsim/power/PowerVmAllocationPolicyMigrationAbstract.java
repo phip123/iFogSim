@@ -22,7 +22,6 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.lists.PowerVmList;
-import org.cloudbus.cloudsim.power.models.Utilization;
 import org.cloudbus.cloudsim.util.ExecutionTimeMeasurer;
 
 /**
@@ -538,15 +537,16 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 	protected double getPowerAfterAllocation(PowerHost host, Vm vm) {
 		double power = 0;
 		try {
-			double cpuUtil = getMaxCpuUtilizationAfterAllocation(host, vm);
-			double diskUtil = getMaxDiskUtilizationAfterAllocation(host, vm);
-			double bwUtil = getMaxBwUtilizationAfterAllocation(host, vm);
-			Utilization util = Utilization.anUtilizationBuilder()
-					.diskUsage(diskUtil)
-					.cpuUsage(cpuUtil)
-					.bandwithUsage(bwUtil)
+			double mips = getMaxMipsAfterAllocation(host, vm);
+			double bw = getMaxUsedBwAfterAllocation(host, vm);
+			Resources resources = Resources.aResourcesBuilder()
+					.maxMips(host.getTotalMips())
+					.maxBw(host.getBw())
+					.mips(mips)
+					.bw(bw)
 					.build();
-			power = host.getPowerModel().getPower(util);
+
+			power = host.getPowerModel().getPower(resources);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -554,14 +554,10 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 		return power;
 	}
 
-	protected double getMaxBwUtilizationAfterAllocation(PowerHost host, Vm vm) {
-		// TODO implement
-		return 0;
-	}
-
-	protected double getMaxDiskUtilizationAfterAllocation(PowerHost host, Vm vm) {
-		//TODO implement
-		return 0;
+	protected double getMaxUsedBwAfterAllocation(PowerHost host, Vm vm) {
+		double requestedTotalBw = vm.getCurrentRequestedBw();
+		double hostUtilizationBw = host.getUsedBw();
+		return requestedTotalBw + hostUtilizationBw; // TODO sure correct?
 	}
 
 	/**
@@ -573,12 +569,10 @@ public abstract class PowerVmAllocationPolicyMigrationAbstract extends PowerVmAl
 	 *
 	 * @return the power after allocation
 	 */
-	protected double getMaxCpuUtilizationAfterAllocation(PowerHost host, Vm vm) {
+	protected double getMaxMipsAfterAllocation(PowerHost host, Vm vm) {
 		double requestedTotalMips = vm.getCurrentRequestedTotalMips();
 		double hostUtilizationMips = getUtilizationOfCpuMips(host);
-		double hostPotentialUtilizationMips = hostUtilizationMips + requestedTotalMips;
-		double pePotentialUtilization = hostPotentialUtilizationMips / host.getTotalMips();
-		return pePotentialUtilization;
+		return hostUtilizationMips + requestedTotalMips;
 	}
 
 	/**

@@ -18,7 +18,7 @@ import java.util.Map;
  * VmSchedulerSpaceShared is a VMM allocation policy that allocates one or more Pe to a VM, and
  * doesn't allow sharing of PEs. If there is no free PEs to the VM, allocation fails. Free PEs are
  * not allocated to VMs
- * 
+ *
  * @author Rodrigo N. Calheiros
  * @author Anton Beloglazov
  * @since CloudSim Toolkit 1.0
@@ -33,7 +33,7 @@ public class VmSchedulerSpaceShared extends VmScheduler {
 
 	/**
 	 * Instantiates a new vm scheduler space shared.
-	 * 
+	 *
 	 * @param pelist the pelist
 	 */
 	public VmSchedulerSpaceShared(List<? extends Pe> pelist) {
@@ -101,7 +101,7 @@ public class VmSchedulerSpaceShared extends VmScheduler {
 
 	/**
 	 * Sets the pe allocation map.
-	 * 
+	 *
 	 * @param peAllocationMap the pe allocation map
 	 */
 	protected void setPeAllocationMap(Map<String, List<Pe>> peAllocationMap) {
@@ -110,7 +110,7 @@ public class VmSchedulerSpaceShared extends VmScheduler {
 
 	/**
 	 * Gets the pe allocation map.
-	 * 
+	 *
 	 * @return the pe allocation map
 	 */
 	protected Map<String, List<Pe>> getPeAllocationMap() {
@@ -119,7 +119,7 @@ public class VmSchedulerSpaceShared extends VmScheduler {
 
 	/**
 	 * Sets the free pes vector.
-	 * 
+	 *
 	 * @param freePes the new free pes vector
 	 */
 	protected void setFreePes(List<Pe> freePes) {
@@ -128,7 +128,7 @@ public class VmSchedulerSpaceShared extends VmScheduler {
 
 	/**
 	 * Gets the free pes vector.
-	 * 
+	 *
 	 * @return the free pes vector
 	 */
 	protected List<Pe> getFreePes() {

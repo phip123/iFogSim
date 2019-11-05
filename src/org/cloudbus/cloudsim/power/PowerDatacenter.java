@@ -21,7 +21,6 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
-import org.cloudbus.cloudsim.power.models.Utilization;
 
 /**
  * PowerDatacenter is a class that enables simulation of power-aware data centers.
@@ -196,8 +195,8 @@ public class PowerDatacenter extends Datacenter {
 					currentTime);
 
 			for (PowerHost host : this.<PowerHost> getHostList()) {
-				Utilization previous = host.getPreviousUtilization();
-				Utilization current = host.getUtilization();
+				Resources previous = host.getPreviousAllocation();
+				Resources current = host.getResourceAllocation();
 				double timeFrameHostEnergy = host.getEnergyLinearInterpolation(
 						previous,
 						current,

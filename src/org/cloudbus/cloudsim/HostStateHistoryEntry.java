@@ -8,9 +8,11 @@
 
 package org.cloudbus.cloudsim;
 
+import org.cloudbus.cloudsim.power.Resources;
+
 /**
  * The Class HostStateHistoryEntry.
- * 
+ *
  * @author Anton Beloglazov
  * @since CloudSim Toolkit 2.1.2
  */
@@ -19,33 +21,33 @@ public class HostStateHistoryEntry {
 	/** The time. */
 	private double time;
 
-	/** The allocated mips. */
-	private double allocatedMips;
+	/** The allocated resources */
+	private Resources allocated;
 
-	/** The requested mips. */
-	private double requestedMips;
+	/** The requested resources */
+	private Resources requested;
 
 	/** The is active. */
 	private boolean isActive;
 
 	/**
 	 * Instantiates a new vm mips allocation history entry.
-	 * 
+	 *
 	 * @param time the time
-	 * @param allocatedMips the allocated mips
-	 * @param requestedMips the requested mips
+	 * @param allocated the allocated resources
+	 * @param requested the requested resources
 	 * @param isActive the is active
 	 */
-	public HostStateHistoryEntry(double time, double allocatedMips, double requestedMips, boolean isActive) {
+	public HostStateHistoryEntry(double time, Resources allocated, Resources requested, boolean isActive) {
 		setTime(time);
-		setAllocatedMips(allocatedMips);
-		setRequestedMips(requestedMips);
+		setAllocated(allocated);
+		setRequested(requested);
 		setActive(isActive);
 	}
 
 	/**
 	 * Sets the time.
-	 * 
+	 *
 	 * @param time the new time
 	 */
 	protected void setTime(double time) {
@@ -54,52 +56,33 @@ public class HostStateHistoryEntry {
 
 	/**
 	 * Gets the time.
-	 * 
+	 *
 	 * @return the time
 	 */
 	public double getTime() {
 		return time;
 	}
 
-	/**
-	 * Sets the allocated mips.
-	 * 
-	 * @param allocatedMips the new allocated mips
-	 */
-	protected void setAllocatedMips(double allocatedMips) {
-		this.allocatedMips = allocatedMips;
+
+	public Resources getAllocated() {
+		return allocated;
 	}
 
-	/**
-	 * Gets the allocated mips.
-	 * 
-	 * @return the allocated mips
-	 */
-	public double getAllocatedMips() {
-		return allocatedMips;
+	public void setAllocated(Resources allocated) {
+		this.allocated = allocated;
 	}
 
-	/**
-	 * Sets the requested mips.
-	 * 
-	 * @param requestedMips the new requested mips
-	 */
-	protected void setRequestedMips(double requestedMips) {
-		this.requestedMips = requestedMips;
+	public Resources getRequested() {
+		return requested;
 	}
 
-	/**
-	 * Gets the requested mips.
-	 * 
-	 * @return the requested mips
-	 */
-	public double getRequestedMips() {
-		return requestedMips;
+	public void setRequested(Resources requested) {
+		this.requested = requested;
 	}
 
 	/**
 	 * Sets the active.
-	 * 
+	 *
 	 * @param isActive the new active
 	 */
 	public void setActive(boolean isActive) {
@@ -108,7 +91,7 @@ public class HostStateHistoryEntry {
 
 	/**
 	 * Checks if is active.
-	 * 
+	 *
 	 * @return true, if is active
 	 */
 	public boolean isActive() {

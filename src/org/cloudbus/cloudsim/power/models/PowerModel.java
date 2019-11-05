@@ -8,6 +8,8 @@
 
 package org.cloudbus.cloudsim.power.models;
 
+import org.cloudbus.cloudsim.power.Resources;
+
 /**
  * The PowerModel interface needs to be implemented in order to provide a model of power consumption
  * depending on utilization for system components.
@@ -34,6 +36,6 @@ public interface PowerModel {
 	 * @return power consumption
 	 * @throws IllegalArgumentException the illegal argument exception
 	 */
-	double getPower(Utilization environment) throws IllegalArgumentException;
+	double getPower(Resources environment) throws IllegalArgumentException;
 
 }

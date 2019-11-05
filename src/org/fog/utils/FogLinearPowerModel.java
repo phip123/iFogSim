@@ -1,7 +1,7 @@
 package org.fog.utils;
 
+import org.cloudbus.cloudsim.power.Resources;
 import org.cloudbus.cloudsim.power.models.PowerModel;
-import org.cloudbus.cloudsim.power.models.Utilization;
 
 /**
  * The Class PowerModelLinear.
@@ -47,7 +47,7 @@ public class FogLinearPowerModel implements PowerModel {
 	 * @see cloudsim.power.PowerModel#getPower(double)
 	 */
 	@Override
-	public double getPower(Utilization utilization) throws IllegalArgumentException {
+	public double getPower(Resources utilization) throws IllegalArgumentException {
 		double cpuUtil = utilization.getCpuUsage();
 		if (cpuUtil < 0 || cpuUtil > 1) {
 			throw new IllegalArgumentException("Utilization value must be between 0 and 1");

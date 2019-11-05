@@ -10,7 +10,7 @@ package org.cloudbus.cloudsim;
 
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.lists.PeList;
-import org.cloudbus.cloudsim.power.models.Utilization;
+import org.cloudbus.cloudsim.power.Resources;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 
@@ -27,14 +27,13 @@ import java.util.List;
 public class HostDynamicWorkload extends Host {
 
     /**
-     * The utilization mips.
+     * The utilization.
      */
-    private double utilizationMips;
-
+    private Resources resourceAllocation;
     /**
-     * The previous utilization mips.
+     * The previous utilization.
      */
-    private double previousUtilizationMips;
+    private Resources previousAllocation;
 
     /**
      * The state history.
@@ -59,8 +58,8 @@ public class HostDynamicWorkload extends Host {
             List<? extends Pe> peList,
             VmScheduler vmScheduler) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler);
-        setUtilizationMips(0);
-        setPreviousUtilizationMips(0);
+        setResourceAllocation(Resources.empty());
+        setPreviousAllocation(Resources.empty());
     }
 
     /*
@@ -70,9 +69,10 @@ public class HostDynamicWorkload extends Host {
     @Override
     public double updateVmsProcessing(double currentTime) {
         double smallerTime = super.updateVmsProcessing(currentTime);
-        setPreviousUtilizationMips(getUtilizationMips());
-        setUtilizationMips(0);
+        setPreviousAllocation(getResourceAllocation());
+        setResourceAllocation(Resources.empty());
         double hostTotalRequestedMips = 0;
+        double hostTotalRequestedBw = 0;
 
         for (Vm vm : getVmList()) {
             getVmScheduler().deallocatePesForVm(vm);
@@ -84,8 +84,9 @@ public class HostDynamicWorkload extends Host {
 
         for (Vm vm : getVmList()) {
             double totalRequestedMips = vm.getCurrentRequestedTotalMips();
+            double totalRequesteBw = vm.getCurrentRequestedBw();
             double totalAllocatedMips = getVmScheduler().getTotalAllocatedMipsForVm(vm);
-            vm.getCurrentRequestedBw()
+            double totalAllocatedBw = getBwProvisioner().getAllocatedBwForVm(vm);
             if (!Log.isDisabled()) {
                 Log.formatLine(
                         "%.2f: [Host #" + getId() + "] Total allocated MIPS for VM #" + vm.getId()
@@ -133,14 +134,35 @@ public class HostDynamicWorkload extends Host {
                 }
             }
 
-            setUtilizationMips(getUtilizationMips() + totalAllocatedMips);
+            Resources build = Resources.ResourcesBuilder.aResources()
+                    .maxMips(getTotalMips())
+                    .maxBw(getBwProvisioner().getAvailableBw() + getBwProvisioner().getUsedBw())
+                    .mips(getUtilizationMips() + totalAllocatedMips)
+                    .bw(getBwProvisioner().getUsedBw() + totalAllocatedBw)
+                    .build();
+            setResourceAllocation(build);
             hostTotalRequestedMips += totalRequestedMips;
+            hostTotalRequestedBw += totalRequesteBw;
         }
+
+        Resources requested = Resources.ResourcesBuilder.aResources()
+                .maxMips(getTotalMips())
+                .maxBw(getBwProvisioner().getAvailableBw() + getBwProvisioner().getUsedBw())
+                .mips(hostTotalRequestedMips)
+                .bw(hostTotalRequestedBw)
+                .build();
+
+        Resources allocated = Resources.ResourcesBuilder.aResources()
+                .maxMips(getTotalMips())
+                .maxBw(getBwProvisioner().getAvailableBw() + getBwProvisioner().getUsedBw())
+                .mips(getUtilizationMips())
+                .bw(getBwProvisioner().getUsedBw())
+                .build();
 
         addStateHistoryEntry(
                 currentTime,
-                getUtilizationMips(),
-                hostTotalRequestedMips,
+                allocated,
+                requested,
                 (getUtilizationMips() > 0));
 
         return smallerTime;
@@ -198,7 +220,8 @@ public class HostDynamicWorkload extends Host {
      * @return the utilization of bw
      */
     public double getUtilizationOfBw() {
-        return getBwProvisioner().getUsedBw();
+//        return getBwProvisioner().getUsedBw();
+        return resourceAllocation.getBwUsage();
     }
 
     /**
@@ -220,31 +243,11 @@ public class HostDynamicWorkload extends Host {
      * @return the previous utilization of cpu
      */
     public double getPreviousUtilizationOfCpu() {
-        double utilization = getPreviousUtilizationMips() / getTotalMips();
-        if (utilization > 1 && utilization < 1.01) {
-            utilization = 1;
-        }
-        return utilization;
-    }
-
-    public Utilization getPreviousUtilization() {
-        double previousCPU = getPreviousUtilizationOfCpu();
-        double previousDisk = getPreviousUtilizationOfDisk();
-        Utilization utilization = new Utilization();
-        utilization.setDiskUsage(previousDisk);
-        utilization.setCpuUsage(previousCPU);
-        utilization.setBandwithUsage(getPreviousUtilizationOfBw());
-        return utilization;
+        return previousAllocation.getCpuUsage();
     }
 
     private double getPreviousUtilizationOfBw() {
-        // TODO implement
-        return 0;
-    }
-
-    private double getPreviousUtilizationOfDisk() {
-        // TODO implement
-        return 0;
+        return previousAllocation.getBwUsage();
     }
 
     /**
@@ -262,17 +265,9 @@ public class HostDynamicWorkload extends Host {
      * @return the utilization mips
      */
     public double getUtilizationMips() {
-        return utilizationMips;
+        return resourceAllocation.getMips();
     }
 
-    /**
-     * Sets the utilization mips.
-     *
-     * @param utilizationMips the new utilization mips
-     */
-    protected void setUtilizationMips(double utilizationMips) {
-        this.utilizationMips = utilizationMips;
-    }
 
     /**
      * Gets the previous utilization mips.
@@ -280,17 +275,9 @@ public class HostDynamicWorkload extends Host {
      * @return the previous utilization mips
      */
     public double getPreviousUtilizationMips() {
-        return previousUtilizationMips;
+        return previousAllocation.getMips();
     }
 
-    /**
-     * Sets the previous utilization mips.
-     *
-     * @param previousUtilizationMips the new previous utilization mips
-     */
-    protected void setPreviousUtilizationMips(double previousUtilizationMips) {
-        this.previousUtilizationMips = previousUtilizationMips;
-    }
 
     /**
      * Gets the state history.
@@ -304,18 +291,18 @@ public class HostDynamicWorkload extends Host {
     /**
      * Adds the state history entry.
      *
-     * @param time          the time
-     * @param allocatedMips the allocated mips
-     * @param requestedMips the requested mips
-     * @param isActive      the is active
+     * @param time      the time
+     * @param allocated the allocated resources
+     * @param requested the requested resources
+     * @param isActive  the is active
      */
     public void
-    addStateHistoryEntry(double time, double allocatedMips, double requestedMips, boolean isActive) {
+    addStateHistoryEntry(double time, Resources allocated, Resources requested, boolean isActive) {
 
         HostStateHistoryEntry newState = new HostStateHistoryEntry(
                 time,
-                allocatedMips,
-                requestedMips,
+                allocated,
+                requested,
                 isActive);
         if (!getStateHistory().isEmpty()) {
             HostStateHistoryEntry previousState = getStateHistory().get(getStateHistory().size() - 1);
@@ -327,17 +314,24 @@ public class HostDynamicWorkload extends Host {
         getStateHistory().add(newState);
     }
 
-	public Utilization getUtilization() {
-		return Utilization.anUtilizationBuilder()
-				.cpuUsage(getUtilizationOfCpu())
-				.diskUsage(getDiskUsage())
-                .bandwithUsage(getUtilizationOfBw())
-				.build();
-	}
+    public double getDiskUtiliziation() {
+        // TODO implement
+        return 0;
+    }
 
-	public double getDiskUsage() {
-    	// TODO implement
-		return 0;
-	}
+    public Resources getResourceAllocation() {
+        return resourceAllocation;
+    }
 
+    public Resources getPreviousAllocation() {
+        return previousAllocation;
+    }
+
+    public void setResourceAllocation(Resources resourceAllocation) {
+        this.resourceAllocation = resourceAllocation;
+    }
+
+    public void setPreviousAllocation(Resources previousAllocation) {
+        this.previousAllocation = previousAllocation;
+    }
 }

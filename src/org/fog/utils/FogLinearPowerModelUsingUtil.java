@@ -1,32 +1,10 @@
-/*
- * Title:        CloudSim Toolkit
- * Description:  CloudSim (Cloud Simulation) Toolkit for Modeling and Simulation of Clouds
- * Licence:      GPL - http://www.gnu.org/copyleft/gpl.html
- *
- * Copyright (c) 2009-2012, The University of Melbourne, Australia
- */
-
-package org.cloudbus.cloudsim.power.models;
+package org.fog.utils;
 
 import org.cloudbus.cloudsim.power.Resources;
+import org.cloudbus.cloudsim.power.models.PowerModel;
 
-/**
- * The Class PowerModelLinear.
- *
- * If you are using any algorithms, policies or workload included in the power package, please cite
- * the following paper:
- *
- * Anton Beloglazov, and Rajkumar Buyya, "Optimal Online Deterministic Algorithms and Adaptive
- * Heuristics for Energy and Performance Efficient Dynamic Consolidation of Virtual Machines in
- * Cloud Data Centers", Concurrency and Computation: Practice and Experience (CCPE), Volume 24,
- * Issue 13, Pages: 1397-1420, John Wiley & Sons, Ltd, New York, USA, 2012
- *
- * @author Anton Beloglazov
- *
- * @author Anton Beloglazov
- * @since CloudSim Toolkit 2.0
- */
-public class PowerModelLinear implements PowerModel {
+
+public class FogLinearPowerModelUsingUtil implements PowerModel {
 
 	/** The max power. */
 	private double maxPower;
@@ -41,11 +19,11 @@ public class PowerModelLinear implements PowerModel {
 	 * Instantiates a new linear power model.
 	 *
 	 * @param maxPower the max power
-	 * @param staticPowerPercent the static power percent
+	 * @param staticPower the static power
 	 */
-	public PowerModelLinear(double maxPower, double staticPowerPercent) {
+	public FogLinearPowerModelUsingUtil(double maxPower, double staticPower) {
 		setMaxPower(maxPower);
-		setStaticPower(staticPowerPercent * maxPower);
+		setStaticPower(staticPower);
 		setConstant((maxPower - getStaticPower()) / 100);
 	}
 
@@ -58,9 +36,6 @@ public class PowerModelLinear implements PowerModel {
 		double cpuUtil = utilization.getCpuUsage();
 		if (cpuUtil < 0 || cpuUtil > 1) {
 			throw new IllegalArgumentException("Utilization value must be between 0 and 1");
-		}
-		if (cpuUtil == 0) {
-			return 0;
 		}
 		return getStaticPower() + getConstant() * cpuUtil * 100;
 	}

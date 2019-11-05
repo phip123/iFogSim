@@ -12,7 +12,6 @@ import org.cloudbus.cloudsim.HostDynamicWorkload;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.power.models.PowerModel;
-import org.cloudbus.cloudsim.power.models.Utilization;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 
@@ -67,12 +66,14 @@ public class PowerHost extends HostDynamicWorkload {
      * @return the power
      */
     public double getPower() {
-        Utilization utilization = new Utilization();
-        utilization.setCpuUsage(getUtilizationOfCpu());
-        utilization.setDiskUsage(getDiskUsage());
-        utilization.setBandwithUsage(getBw());
+        Resources resources = Resources.ResourcesBuilder.aResources()
+                .bw(getBwProvisioner().getUsedBw())
+                .maxBw(getBwProvisioner().getBw())
+                .mips(getUtilizationMips())
+                .maxMips(getTotalMips())
+                .build();
         try {
-            return powerModel.getPower(utilization);
+            return powerModel.getPower(resources);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -80,8 +81,6 @@ public class PowerHost extends HostDynamicWorkload {
 
         }
     }
-
-
 
 
     /**
@@ -92,10 +91,13 @@ public class PowerHost extends HostDynamicWorkload {
     public double getMaxPower() {
         double power = 0;
         try {
-            Utilization utilization = new Utilization();
-            utilization.setDiskUsage(1);
-            utilization.setCpuUsage(1);
-            power = getPowerModel().getPower(utilization);
+            Resources resources = Resources.ResourcesBuilder.aResources()
+                    .maxMips(getTotalMips())
+                    .mips(getTotalMips())
+                    .maxBw(getBwProvisioner().getBw())
+                    .bw(getBwProvisioner().getBw())
+                    .build();
+            power = getPowerModel().getPower(resources);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -106,18 +108,17 @@ public class PowerHost extends HostDynamicWorkload {
     /**
      * Gets the energy consumption using linear interpolation of the utilization change.
      *
-     * @param fromUtilization the from utilization
-     * @param toUtilization   the to utilization
+     * @param fromResources the from resources
+     * @param toResources   the to resources
      * @param time            the time
      * @return the energy
      */
-    public double getEnergyLinearInterpolation(Utilization fromUtilization, Utilization toUtilization, double time) {
-        if (fromUtilization.getCpuUsage() == 0 || fromUtilization.getDiskUsage() == 0 || toUtilization.getDiskUsage() == 0
-		|| toUtilization.getCpuUsage() == 0) {
+    public double getEnergyLinearInterpolation(Resources fromResources, Resources toResources, double time) {
+        if (toResources.getCpuUsage() == 0 || fromResources.getCpuUsage() == 0) {
             return 0;
         }
-        double fromPower = getPowerModel().getPower(fromUtilization);
-        double toPower = getPowerModel().getPower(toUtilization);
+        double fromPower = getPowerModel().getPower(fromResources);
+        double toPower = getPowerModel().getPower(toResources);
         return (fromPower + (toPower - fromPower) / 2) * time;
     }
 

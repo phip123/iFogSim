@@ -7,8 +7,8 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
+import org.cloudbus.cloudsim.power.Resources;
 import org.cloudbus.cloudsim.power.models.PowerModel;
-import org.cloudbus.cloudsim.power.models.Utilization;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.cloudbus.cloudsim.sdn.overbooking.BwProvisionerOverbooking;
 import org.cloudbus.cloudsim.sdn.overbooking.PeProvisionerOverbooking;
@@ -70,7 +70,7 @@ public class FogDevice extends PowerDatacenter {
 
     protected double energyConsumption;
     protected double lastUtilizationUpdateTime;
-    protected double lastCpuUtilization;
+    protected Resources lastResources;
     private int level;
 
     protected double ratePerMips;
@@ -126,7 +126,7 @@ public class FogDevice extends PowerDatacenter {
         this.lockTime = 0;
 
         this.energyConsumption = 0;
-        this.lastCpuUtilization = 0;
+        this.lastResources = Resources.empty();
         setTotalCost(0);
         setModuleInstanceCount(new HashMap<String, Map<String, Integer>>());
         setChildToLatencyMap(new HashMap<Integer, Double>());
@@ -210,7 +210,7 @@ public class FogDevice extends PowerDatacenter {
         this.lockTime = 0;
 
         this.energyConsumption = 0;
-        this.lastCpuUtilization = 0;
+        this.lastResources = Resources.empty();
         setTotalCost(0);
         setChildToLatencyMap(new HashMap<Integer, Double>());
         setModuleInstanceCount(new HashMap<String, Map<String, Integer>>());
@@ -385,11 +385,11 @@ public class FogDevice extends PowerDatacenter {
                     currentTime);
 
             for (PowerHost host : this.<PowerHost>getHostList()) {
-                Utilization previousUtilization = host.getPreviousUtilization();
-                Utilization utilization = host.getUtilization();
+                Resources previous = host.getPreviousAllocation();
+                Resources current = host.getResourceAllocation();
                 double timeFrameHostEnergy = host.getEnergyLinearInterpolation(
-                        previousUtilization,
-                        utilization,
+                        previous,
+                        current,
                         timeDiff);
                 timeFrameDatacenterEnergy += timeFrameHostEnergy;
 
@@ -399,8 +399,8 @@ public class FogDevice extends PowerDatacenter {
                         currentTime,
                         host.getId(),
                         getLastProcessTime(),
-                        previousUtilization,
-                        utilization);
+                        previous,
+                        current);
                 Log.formatLine(
                         "%.2f: [Host #%d] energy is %.2f W*sec",
                         currentTime,
@@ -543,36 +543,23 @@ public class FogDevice extends PowerDatacenter {
 
         double timeNow = CloudSim.clock();
         double currentEnergyConsumption = getEnergyConsumption();
-        Utilization utilization = Utilization.anUtilizationBuilder()
-                .cpuUsage(lastCpuUtilization)
-                .diskUsage(lastDiskUsage())
-                .bandwithUsage(lastBandwithUsage())
-                .build();
-        double newEnergyConsumption = currentEnergyConsumption + (timeNow - lastUtilizationUpdateTime) * getHost().getPowerModel().getPower(utilization);
+
+        double newEnergyConsumption = currentEnergyConsumption + (timeNow - lastUtilizationUpdateTime) * getHost().getPowerModel().getPower(lastResources);
         setEnergyConsumption(newEnergyConsumption);
 
         double currentCost = getTotalCost();
-        double newcost = currentCost + (timeNow - lastUtilizationUpdateTime) * getRatePerMips() * lastCpuUtilization * getHost().getTotalMips();
+        double newcost = currentCost + (timeNow - lastUtilizationUpdateTime) * getRatePerMips() * lastResources.getCpuUsage() * getHost().getTotalMips();
         setTotalCost(newcost);
 
-        lastCpuUtilization = Math.min(1, totalMipsAllocated / getHost().getTotalMips());
-        setLastDiskUtilization();
+        lastResources = Resources.aResourcesBuilder()
+                .mips(totalMipsAllocated)
+                .maxMips(getHost().getTotalMips())
+                .bw(getHost().getUsedBw())
+                .maxBw(getHost().getBw())
+                .build();
         lastUtilizationUpdateTime = timeNow;
     }
 
-    private double lastBandwithUsage() {
-        // TODO implement
-        return 0;
-    }
-
-    private void setLastDiskUtilization() {
-        //TODO implement
-    }
-
-    private double lastDiskUsage() {
-        //TODO implement
-        return 0;
-    }
 
     protected void processAppSubmit(SimEvent ev) {
         Application app = (Application) ev.getData();
