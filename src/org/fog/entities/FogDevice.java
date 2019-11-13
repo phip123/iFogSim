@@ -126,7 +126,12 @@ public class FogDevice extends PowerDatacenter {
         this.lockTime = 0;
 
         this.energyConsumption = 0;
-        this.lastResources = Resources.empty();
+        this.lastResources = Resources.aResourcesBuilder()
+                .maxBw(getHost().getBw())
+                .maxMips(getHost().getTotalMips())
+                .bw(0)
+                .mips(0)
+                .build();
         setTotalCost(0);
         setModuleInstanceCount(new HashMap<String, Map<String, Integer>>());
         setChildToLatencyMap(new HashMap<Integer, Double>());

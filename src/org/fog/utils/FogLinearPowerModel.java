@@ -50,7 +50,7 @@ public class FogLinearPowerModel implements PowerModel {
 	public double getPower(Resources utilization) throws IllegalArgumentException {
 		double cpuUtil = utilization.getCpuUsage();
 		if (cpuUtil < 0 || cpuUtil > 1) {
-			throw new IllegalArgumentException("Utilization value must be between 0 and 1");
+			throw new IllegalArgumentException("Utilization value must be between 0 and 1, was: " + cpuUtil);
 		}
 		return getStaticPower() + getConstant() * cpuUtil * 100;
 	}

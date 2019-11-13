@@ -10,13 +10,16 @@ public class Resources {
         return ResourcesBuilder.aResources()
                 .bw(0)
                 .mips(0)
-                .maxBw(0)
-                .maxMips(0)
+                .maxBw(1)
+                .maxMips(1)
                 .build();
     }
 
     public double getCpuUsage() {
-        double utilization = getMips() / getMaxMips();
+        if (getMaxMips() == 0) {
+            return 0;
+        }
+        double utilization = (getMips() / getMaxMips())/100;
         if (utilization > 1 && utilization < 1.01) {
             utilization = 1;
         }
@@ -25,7 +28,7 @@ public class Resources {
     }
 
     public double getBwUsage() {
-        double utilization = getBw() / getMaxBw();
+        double utilization = (getBw() / getMaxBw())/100;
         if (utilization > 1 && utilization < 1.01) {
             utilization = 1;
         }
