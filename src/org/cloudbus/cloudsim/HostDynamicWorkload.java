@@ -147,14 +147,14 @@ public class HostDynamicWorkload extends Host {
 
         Resources requested = Resources.ResourcesBuilder.aResources()
                 .maxMips(getTotalMips())
-                .maxBw(getBwProvisioner().getAvailableBw() + getBwProvisioner().getUsedBw())
+                .maxBw(getBw())
                 .mips(hostTotalRequestedMips)
                 .bw(hostTotalRequestedBw)
                 .build();
 
         Resources allocated = Resources.ResourcesBuilder.aResources()
                 .maxMips(getTotalMips())
-                .maxBw(getBwProvisioner().getAvailableBw() + getBwProvisioner().getUsedBw())
+                .maxBw(getBw())
                 .mips(getUtilizationMips())
                 .bw(getBwProvisioner().getUsedBw())
                 .build();
