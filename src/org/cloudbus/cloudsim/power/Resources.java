@@ -19,21 +19,21 @@ public class Resources {
         if (getMaxMips() == 0) {
             return 0;
         }
-        double utilization = (getMips() / getMaxMips())/100;
+        double utilization = (getMips() / getMaxMips());
         if (utilization > 1 && utilization < 1.01) {
             utilization = 1;
         }
 
-        return utilization;
+        return Math.min(1, utilization);
     }
 
     public double getBwUsage() {
-        double utilization = (getBw() / getMaxBw())/100;
+        double utilization = (getBw() / getMaxBw());
         if (utilization > 1 && utilization < 1.01) {
             utilization = 1;
         }
 
-        return utilization;
+        return Math.min(1, utilization);
     }
 
     public Resources(double mips, double maxMips, double bw, double maxBw) {
