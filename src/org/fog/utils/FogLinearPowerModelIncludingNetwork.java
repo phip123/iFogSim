@@ -1,8 +1,9 @@
-package org.cloudbus.cloudsim.power.models;
+package org.fog.utils;
 
 import org.cloudbus.cloudsim.power.Resources;
+import org.cloudbus.cloudsim.power.models.PowerModel;
 
-public class PowerModelLinearIncludingNetwork implements PowerModel {
+public class FogLinearPowerModelIncludingNetwork implements PowerModel {
 
     private double maxCpuPower;
     private double maxNetworkPower;
@@ -11,7 +12,7 @@ public class PowerModelLinearIncludingNetwork implements PowerModel {
     private double staticPower;
 
 
-    public PowerModelLinearIncludingNetwork(double maxCpuPower, double maxNetworkPower, double staticPower) {
+    public FogLinearPowerModelIncludingNetwork(double maxCpuPower, double maxNetworkPower, double staticPower) {
         this.maxCpuPower = maxCpuPower;
         this.maxNetworkPower = maxNetworkPower;
         this.staticPower = staticPower;

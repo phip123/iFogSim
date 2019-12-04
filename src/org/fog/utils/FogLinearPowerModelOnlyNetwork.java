@@ -1,14 +1,15 @@
-package org.cloudbus.cloudsim.power.models;
+package org.fog.utils;
 
 import org.cloudbus.cloudsim.power.Resources;
+import org.cloudbus.cloudsim.power.models.PowerModel;
 
-public class PowerModelLinearOnlyNetwork implements PowerModel {
+public class FogLinearPowerModelOnlyNetwork implements PowerModel {
 
     private double maxNetworkPower;
     private double staticPower;
     private double networkConstant;
 
-    public PowerModelLinearOnlyNetwork(double maxNetworkPower, double staticPower) {
+    public FogLinearPowerModelOnlyNetwork(double maxNetworkPower, double staticPower) {
         this.maxNetworkPower = maxNetworkPower;
         this.staticPower = staticPower;
         this.networkConstant = (maxNetworkPower - staticPower) / 100;

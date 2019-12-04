@@ -6,6 +6,7 @@ import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerHost;
+import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.cloudbus.cloudsim.sdn.overbooking.BwProvisionerOverbooking;
 import org.cloudbus.cloudsim.sdn.overbooking.PeProvisionerOverbooking;
@@ -20,9 +21,7 @@ import org.fog.placement.ModulePlacementEdgewards;
 import org.fog.placement.ModulePlacementMapping;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
-import org.fog.utils.FogLinearPowerModel;
-import org.fog.utils.FogUtils;
-import org.fog.utils.TimeKeeper;
+import org.fog.utils.*;
 import org.fog.utils.distribution.DeterministicDistribution;
 
 import java.util.ArrayList;
@@ -159,7 +158,7 @@ public class CameraDisplayFog {
     }
 
     private static FogDevice createMobileDevice(String id) {
-        return createFogDevice("m-" + id, 10000, 4096, 10000, 270, 3, 0, 10, 4);
+        return createFogDevice("m-" + id, 10000, 4096, 10000, 270, 3, 0, 90, 7);
     }
 
     /**
@@ -186,16 +185,18 @@ public class CameraDisplayFog {
 
         int hostId = FogUtils.generateEntityId();
         long storage = 1000000; // host storage
-        int bw = 10000;
+        int bw =10000;
 
         PowerHost host = new PowerHost(
                 hostId,
                 new RamProvisionerSimple(ram),
-                new BwProvisionerOverbooking(bw),
+                new BwProvisionerSimple(bw),
                 storage,
                 peList,
                 new StreamOperatorScheduler(peList),
-                new FogLinearPowerModel(busyPower, idlePower)
+//                new FogLinearPowerModel(busyPower, idlePower)
+                new FogLinearPowerModelIncludingNetwork(busyPower, 5.0, idlePower)
+//                new FogLinearPowerModelOnlyNetwork(5, idlePower)
         );
 
         List<Host> hostList = new ArrayList<Host>();
